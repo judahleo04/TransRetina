@@ -1,0 +1,23 @@
+# ============================================
+# Create .streamlit/config.toml for better performance
+# ============================================
+import os
+os.makedirs('.streamlit', exist_ok=True)
+
+%%writefile .streamlit/config.toml
+[theme]
+primaryColor = "#667eea"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f0f2f6"
+textColor = "#262730"
+font = "sans serif"
+
+[server]
+maxUploadSize = 10
+enableCORS = false
+enableXsrfProtection = false
+
+[browser]
+gatherUsageStats = false
+
+print("✅ Streamlit config created!")
