@@ -1,17 +1,3 @@
-# ============================================
-# DELETE the old config and create NEW ONE
-# ============================================
-import os
-
-# Remove old config if exists
-if os.path.exists('.streamlit/config.toml'):
-    os.remove('.streamlit/config.toml')
-
-# Create fresh directory
-os.makedirs('.streamlit', exist_ok=True)
-
-# Create correct config file
-
 [theme]
 primaryColor = "#667eea"
 backgroundColor = "#ffffff"
@@ -27,5 +13,3 @@ headless = true
 
 [browser]
 gatherUsageStats = false
-
-print("✅ CORRECT config.toml created!")
