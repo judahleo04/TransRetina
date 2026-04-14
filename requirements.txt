@@ -1,3 +1,6 @@
+# ============================================
+# SIMPLE requirements.txt (ONLY what's needed)
+# ============================================
 streamlit==1.35.0
-pillow==10.1.0
-plotly==5.18.0
+
+print("✅ requirements.txt created!")
