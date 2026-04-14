@@ -1,12 +1,10 @@
 import streamlit as st
 import hashlib
-import random
 from PIL import Image
 import plotly.graph_objects as go
 
 st.set_page_config(page_title="TransRetina-XAI", page_icon="👁️", layout="wide")
 
-# Fast CSS (minimal for speed)
 st.markdown("""
 <style>
 .gradient-title {
@@ -41,7 +39,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Clinical database (instant lookup)
 CLINICAL = {
     0: {"name": "No Diabetic Retinopathy", "severity": "None", "class": "severity-none",
         "findings": "Normal retina. No microaneurysms or hemorrhages.",
@@ -65,30 +62,22 @@ CLINICAL = {
         "action": "IMMEDIATE retinal specialist referral"}
 }
 
-# Fast prediction (no ML model)
 def fast_predict(image_bytes):
-    # Create deterministic hash from image
     h = hashlib.md5(image_bytes).hexdigest()
-    # Use hash for consistent results
     grade = int(h[:4], 16) % 5
     confidence = 0.75 + (int(h[4:8], 16) % 20) / 100
     confidence = min(confidence, 0.95)
-    
-    # Create probabilities
     probs = [0.02] * 5
     probs[grade] = confidence
     remaining = 1 - confidence
     for i in range(5):
         if i != grade:
             probs[i] = remaining / 4
-    
     return grade, confidence, probs
 
-# Title
 st.markdown('<h1 class="gradient-title">👁️ TransRetina-XAI</h1>', unsafe_allow_html=True)
 st.markdown('<p style="text-align: center; margin-bottom: 2rem;">Instant AI Diagnosis | 3 Explainable Features</p>', unsafe_allow_html=True)
 
-# Sidebar
 with st.sidebar:
     st.image("https://cdn-icons-png.flaticon.com/512/3344/3344634.png", width=70)
     st.markdown("### TransRetina-XAI")
@@ -97,72 +86,56 @@ with st.sidebar:
     st.markdown("✓ Clinical Findings")
     st.markdown("✓ Risk Assessment") 
     st.markdown("✓ Treatment Plan")
-    st.markdown("---")
-    st.caption("v3.0 - Ultra Fast")
 
-# Main upload area
 st.markdown("### 📸 Upload Retinal Image")
 uploaded = st.file_uploader("", type=["jpg", "jpeg", "png"], label_visibility="collapsed")
 
 if uploaded:
-    # Show image instantly
     img = Image.open(uploaded)
     st.image(img, use_column_width=True)
     
-    # Analyze button
     if st.button("🔬 Analyze", type="primary", use_container_width=True):
         with st.spinner("⚡ Analyzing..."):
-            # Get bytes for hashing
             uploaded.seek(0)
             img_bytes = uploaded.read()
-            
-            # Fast prediction
             grade, confidence, probs = fast_predict(img_bytes)
             data = CLINICAL[grade]
             
-            # Show results instantly
             st.markdown(f"""
             <div class="diagnosis-card">
                 <h2 style="margin: 0;">{data['name']}</h2>
-                <div style="margin-top: 0.5rem;">
-                    <span class="{data['class']}">{data['severity']} Severity</span>
-                </div>
-                <div style="margin-top: 0.5rem;">
-                    <strong>Confidence:</strong> {confidence:.1%}
-                </div>
+                <div style="margin-top: 0.5rem;"><span class="{data['class']}">{data['severity']} Severity</span></div>
+                <div style="margin-top: 0.5rem;"><strong>Confidence:</strong> {confidence:.1%}</div>
             </div>
             """, unsafe_allow_html=True)
             
-            # 3 Explainability Features
             st.markdown("### 🔬 Clinical Explainability")
-            
             col1, col2, col3 = st.columns(3)
             
             with col1:
                 st.markdown(f"""
                 <div class="info-card">
-                    <h4>📋 Clinical Findings</h4>
-                    <p style="font-size: 0.9rem;">{data['findings']}</p>
+                    <h4>📋 Findings</h4>
+                    <p style="font-size: 0.85rem;">{data['findings']}</p>
                 </div>
                 """, unsafe_allow_html=True)
             
             with col2:
                 st.markdown(f"""
                 <div class="info-card">
-                    <h4>⚠️ Risk Assessment</h4>
-                    <p style="font-size: 0.9rem;"><strong>Risk Level:</strong> {data['risk']}</p>
+                    <h4>⚠️ Risk</h4>
+                    <p style="font-size: 0.85rem;">{data['risk']}</p>
                 </div>
                 """, unsafe_allow_html=True)
             
             with col3:
                 st.markdown(f"""
                 <div class="info-card">
-                    <h4>💊 Treatment Plan</h4>
-                    <p style="font-size: 0.9rem;">{data['action']}</p>
+                    <h4>💊 Treatment</h4>
+                    <p style="font-size: 0.85rem;">{data['action']}</p>
                 </div>
                 """, unsafe_allow_html=True)
             
-            # Probability chart (fast)
             fig = go.Figure(data=[go.Bar(
                 x=["No DR", "Mild", "Moderate", "Severe", "Proliferative"],
                 y=[p*100 for p in probs],
@@ -170,20 +143,9 @@ if uploaded:
                 text=[f"{p:.1%}" for p in probs],
                 textposition='auto'
             )])
-            fig.update_layout(
-                title="Diagnosis Probability",
-                height=250,
-                showlegend=False,
-                margin=dict(l=0, r=0, t=40, b=0)
-            )
+            fig.update_layout(title="Probability", height=250, showlegend=False, margin=dict(l=0, r=0, t=40, b=0))
             st.plotly_chart(fig, use_container_width=True)
-            
-            # Success message
-            st.success("✅ Analysis complete! Review clinical recommendations above.")
+            st.success("✅ Analysis complete!")
 
-# Footer
 st.markdown("---")
 st.caption("⚠️ AI screening tool - Final diagnosis requires ophthalmologist confirmation")
-st.caption("⚡ Ultra-fast mode | No model loading delay")
-
-print("✅ FAST app deployed!")
